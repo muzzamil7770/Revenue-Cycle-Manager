@@ -1,0 +1,210 @@
+Create a production-ready Angular (latest version) enterprise-level Healthcare Revenue Cycle Management (RCM) system with a scalable, modular architecture, following best practices used in large-scale SaaS platforms like Epic, Athenahealth, and enterprise Angular monorepos.
+
+The application must be fully dynamic (no static HTML pages) and driven by structured data arrays, services, and reusable configurations, designed to be easily connected to real backend APIs (REST/GraphQL). Use dummy JSON data initially but structure all services as if real endpoints exist (GET, POST, PUT, DELETE).
+
+ARCHITECTURE REQUIREMENTS:
+Use Angular latest version with standalone components (no NgModules where possible), Signals for state management, OnPush change detection strategy, and RxJS interop where necessary. Implement proper folder structure using feature-based modular architecture:
+
+/src/app/
+core/ (auth, interceptors, guards, services, layout)
+shared/ (reusable components, pipes, directives)
+features/
+dashboard/
+patient-access/
+insurance/
+charge-capture/
+coding/
+claims/
+denial/
+payments/
+billing/
+ar/
+financial/
+reporting/
+contracts/
+compliance/
+automation/
+integrations/
+admin/
+
+Use lazy loading for all feature modules using Angular Router with route-level code splitting.
+
+STATE MANAGEMENT:
+Use Angular Signals for local and global state.
+Create signal-based stores/services per module.
+Use computed() and effect() for derived state and side effects.
+Avoid unnecessary subscriptions; prefer signal-driven UI updates.
+
+UI/UX DESIGN SYSTEM:
+Use TailwindCSS with a fully dynamic theme system using CSS variables.
+Create light/dark mode and theme switching (primary color, accent, background).
+Use reusable utility classes and design tokens (spacing, typography, colors).
+Implement a professional healthcare SaaS UI with:
+
+* Collapsible sidebar navigation
+* Top navbar with notifications & profile
+* Breadcrumb navigation
+* Responsive layouts (desktop/tablet/mobile)
+* Cards, tables, charts, forms, modals, tabs, badges
+
+Use Chart.js or ng2-charts for analytics dashboards.
+
+FORMS:
+Use Angular Reactive Forms with dynamic form builders.
+Create a reusable dynamic form engine that supports:
+
+* Field configs (input, select, checkbox, date, autocomplete)
+* Validation rules
+* Conditional fields
+* Async validators (simulate API calls)
+* Form arrays (for billing, insurance, etc.)
+
+DATA TABLES:
+Create reusable smart table component with:
+
+* Pagination
+* Sorting
+* Filtering
+* Column config
+* Row actions
+* Status badges
+* Inline editing (where needed)
+
+FEATURE MODULES (FULLY IMPLEMENTED WITH DUMMY DATA + SERVICES):
+
+1. Dashboard
+
+* KPIs (Revenue, Claims, A/R, Denials)
+* Charts (collections, trends)
+* Activity timeline
+
+2. Patient Access
+
+* Registration form (dynamic)
+* Insurance eligibility check (mock API)
+* Appointment financial summary
+* Cost estimation
+
+3. Insurance & Payer Management
+
+* Payer list
+* Plans, coverage, fee schedules
+* COB handling
+
+4. Charge Capture
+
+* Charge entry UI
+* Superbill management
+* Validation logic
+
+5. Medical Coding
+
+* ICD/CPT/HCPCS selection
+* AI suggestion mock (rule-based)
+* Coding audit flags
+
+6. Claims Management
+
+* Claim creation
+* Claim scrubbing (rules engine simulation)
+* Batch processing
+* Claim tracking
+
+7. Denial Management
+
+* Denial list
+* Root cause tagging
+* Appeal workflow
+
+8. Payment Posting
+
+* ERA parsing (mock JSON)
+* Manual posting UI
+* Adjustments and reconciliation
+
+9. Patient Billing
+
+* Statements
+* Payment plans
+* Notifications (mock)
+
+10. Accounts Receivable (A/R)
+
+* Aging buckets
+* Worklists
+* Follow-ups
+
+11. Financial Management
+
+* Revenue dashboards
+* Payer performance
+* Provider productivity
+
+12. Reporting & Analytics
+
+* KPI reports
+* Export simulation (CSV/Excel)
+* Custom filters
+
+13. Contract Management
+
+* Fee schedules
+* Expected vs actual reimbursement
+
+14. Compliance & Audit
+
+* Audit logs
+* Role-based access (RBAC simulation)
+
+15. Automation & AI
+
+* Rule-based automation engine (simulate workflows)
+* Smart recommendations (mock AI logic)
+
+16. Integrations
+
+* Mock services for EHR, clearinghouse, payments
+
+17. Admin Panel
+
+* User management
+* Roles & permissions
+* System settings
+
+ROUTING:
+Implement clean route structure with guards:
+
+* AuthGuard (mock)
+* RoleGuard (simulate permissions)
+
+SERVICES:
+Each module must have:
+
+* API service (mock HTTP calls)
+* Store (signals-based state)
+* Mapper/adapter for transforming data
+
+THEMING:
+Implement dynamic theme switching using Tailwind + CSS variables.
+Allow runtime theme change (light/dark + color palette).
+
+PERFORMANCE:
+Use:
+
+* OnPush everywhere
+* trackBy in loops
+* Lazy loaded routes
+* Signal-based rendering
+
+DELIVERABLE:
+Generate a complete Angular project structure with:
+
+* Clean scalable architecture
+* Fully working navigation
+* Dynamic reusable components
+* Mock backend services
+* Production-ready code style
+
+The system should feel like a real SaaS product, not a demo.
+
+Ensure code is clean, modular, extensible, and ready to plug into Laravel/Spring/.NET backend later.

@@ -1,22 +1,32 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Healthcare Revenue Cycle Management API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
-    description: Health operations
+  - name: dashboard
+  - name: patients
+  - name: insurance
+  - name: charges
+  - name: claims
+  - name: denials
+  - name: payments
+  - name: billing
+  - name: ar
+  - name: reporting
+  - name: users
+  - name: coding
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,13 +34,1703 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  # Dashboard
+  /dashboard/kpis:
+    get:
+      operationId: getDashboardKpis
+      tags: [dashboard]
+      summary: Get KPI metrics
+      responses:
+        "200":
+          description: KPI data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardKpis"
+
+  /dashboard/revenue-trend:
+    get:
+      operationId: getRevenueTrend
+      tags: [dashboard]
+      summary: Get monthly revenue trend
+      responses:
+        "200":
+          description: Revenue trend
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RevenueTrendItem"
+
+  /dashboard/activity:
+    get:
+      operationId: getDashboardActivity
+      tags: [dashboard]
+      summary: Get recent activity feed
+      responses:
+        "200":
+          description: Activity list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ActivityItem"
+
+  /dashboard/payer-mix:
+    get:
+      operationId: getPayerMix
+      tags: [dashboard]
+      summary: Get payer mix breakdown
+      responses:
+        "200":
+          description: Payer mix
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PayerMixItem"
+
+  # Patients
+  /patients:
+    get:
+      operationId: listPatients
+      tags: [patients]
+      summary: List patients
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Patient list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PatientList"
+    post:
+      operationId: createPatient
+      tags: [patients]
+      summary: Register new patient
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatientInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Patient"
+
+  /patients/{id}:
+    get:
+      operationId: getPatient
+      tags: [patients]
+      summary: Get patient by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Patient
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Patient"
+    patch:
+      operationId: updatePatient
+      tags: [patients]
+      summary: Update patient
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PatientUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Patient"
+
+  /patients/{id}/eligibility:
+    get:
+      operationId: checkEligibility
+      tags: [patients]
+      summary: Check insurance eligibility
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Eligibility result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EligibilityResult"
+
+  # Insurance / Payers
+  /payers:
+    get:
+      operationId: listPayers
+      tags: [insurance]
+      summary: List insurance payers
+      responses:
+        "200":
+          description: Payer list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Payer"
+    post:
+      operationId: createPayer
+      tags: [insurance]
+      summary: Add payer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PayerInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Payer"
+
+  /payers/{id}:
+    get:
+      operationId: getPayer
+      tags: [insurance]
+      summary: Get payer
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Payer
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Payer"
+    patch:
+      operationId: updatePayer
+      tags: [insurance]
+      summary: Update payer
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PayerUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Payer"
+
+  # Charges
+  /charges:
+    get:
+      operationId: listCharges
+      tags: [charges]
+      summary: List charges
+      parameters:
+        - name: patientId
+          in: query
+          schema:
+            type: integer
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Charges
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Charge"
+    post:
+      operationId: createCharge
+      tags: [charges]
+      summary: Create charge
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChargeInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Charge"
+
+  /charges/{id}:
+    patch:
+      operationId: updateCharge
+      tags: [charges]
+      summary: Update charge
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChargeUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Charge"
+
+  # Claims
+  /claims:
+    get:
+      operationId: listClaims
+      tags: [claims]
+      summary: List claims
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: payerId
+          in: query
+          schema:
+            type: integer
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Claims
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ClaimList"
+    post:
+      operationId: createClaim
+      tags: [claims]
+      summary: Create claim
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ClaimInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Claim"
+
+  /claims/{id}:
+    get:
+      operationId: getClaim
+      tags: [claims]
+      summary: Get claim
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Claim
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Claim"
+    patch:
+      operationId: updateClaim
+      tags: [claims]
+      summary: Update claim
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ClaimUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Claim"
+
+  /claims/{id}/submit:
+    post:
+      operationId: submitClaim
+      tags: [claims]
+      summary: Submit claim to payer
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Submitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Claim"
+
+  /claims/stats:
+    get:
+      operationId: getClaimStats
+      tags: [claims]
+      summary: Get claim status summary counts
+      responses:
+        "200":
+          description: Claim stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ClaimStats"
+
+  # Denials
+  /denials:
+    get:
+      operationId: listDenials
+      tags: [denials]
+      summary: List denied claims
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: rootCause
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Denials
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Denial"
+
+  /denials/{id}:
+    get:
+      operationId: getDenial
+      tags: [denials]
+      summary: Get denial detail
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Denial
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Denial"
+    patch:
+      operationId: updateDenial
+      tags: [denials]
+      summary: Update denial / appeal
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DenialUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Denial"
+
+  /denials/summary:
+    get:
+      operationId: getDenialSummary
+      tags: [denials]
+      summary: Get denial root cause breakdown
+      responses:
+        "200":
+          description: Summary
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DenialSummaryItem"
+
+  # Payments
+  /payments:
+    get:
+      operationId: listPayments
+      tags: [payments]
+      summary: List payments
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Payments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Payment"
+    post:
+      operationId: createPayment
+      tags: [payments]
+      summary: Post payment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PaymentInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Payment"
+
+  /payments/summary:
+    get:
+      operationId: getPaymentSummary
+      tags: [payments]
+      summary: Get payment collection summary
+      responses:
+        "200":
+          description: Summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaymentSummary"
+
+  # Billing / Statements
+  /billing/statements:
+    get:
+      operationId: listStatements
+      tags: [billing]
+      summary: List patient billing statements
+      parameters:
+        - name: patientId
+          in: query
+          schema:
+            type: integer
+        - name: status
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Statements
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Statement"
+
+  /billing/payment-plans:
+    get:
+      operationId: listPaymentPlans
+      tags: [billing]
+      summary: List payment plans
+      responses:
+        "200":
+          description: Payment plans
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PaymentPlan"
+    post:
+      operationId: createPaymentPlan
+      tags: [billing]
+      summary: Create payment plan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PaymentPlanInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaymentPlan"
+
+  # AR / Aging
+  /ar/aging:
+    get:
+      operationId: getArAging
+      tags: [ar]
+      summary: Get A/R aging buckets
+      responses:
+        "200":
+          description: Aging data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ArAging"
+
+  /ar/worklist:
+    get:
+      operationId: getArWorklist
+      tags: [ar]
+      summary: Get A/R follow-up worklist
+      parameters:
+        - name: assignee
+          in: query
+          schema:
+            type: string
+        - name: priority
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Worklist
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ArWorklistItem"
+
+  # Reporting
+  /reports/kpis:
+    get:
+      operationId: getReportKpis
+      tags: [reporting]
+      summary: Get KPI report data
+      parameters:
+        - name: from
+          in: query
+          schema:
+            type: string
+        - name: to
+          in: query
+          schema:
+            type: string
+        - name: groupBy
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: KPI report
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KpiReport"
+
+  /reports/payer-performance:
+    get:
+      operationId: getPayerPerformance
+      tags: [reporting]
+      summary: Get payer performance report
+      responses:
+        "200":
+          description: Payer performance
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PayerPerformanceItem"
+
+  /reports/provider-productivity:
+    get:
+      operationId: getProviderProductivity
+      tags: [reporting]
+      summary: Get provider productivity report
+      responses:
+        "200":
+          description: Provider productivity
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProviderProductivityItem"
+
+  # Medical Coding
+  /coding/suggestions:
+    get:
+      operationId: getCodingSuggestions
+      tags: [coding]
+      summary: Get ICD/CPT code suggestions
+      parameters:
+        - name: query
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: type
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Suggestions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CodeSuggestion"
+
+  /coding/audits:
+    get:
+      operationId: listCodingAudits
+      tags: [coding]
+      summary: List coding audit flags
+      responses:
+        "200":
+          description: Audit flags
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CodingAudit"
+
+  # Users / Admin
+  /users:
+    get:
+      operationId: listUsers
+      tags: [users]
+      summary: List system users
+      responses:
+        "200":
+          description: Users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+    post:
+      operationId: createUser
+      tags: [users]
+      summary: Create user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  /users/{id}:
+    patch:
+      operationId: updateUser
+      tags: [users]
+      summary: Update user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+    delete:
+      operationId: deleteUser
+      tags: [users]
+      summary: Delete user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
 components:
   schemas:
     HealthStatus:
       type: object
+      required: [status]
       properties:
         status:
           type: string
-      required:
-        - status
 
+    # Dashboard
+    DashboardKpis:
+      type: object
+      required: [totalRevenue, totalClaims, denialRate, collectionRate, arDays, pendingClaims, openDenials, paymentsThisMonth]
+      properties:
+        totalRevenue:
+          type: number
+        totalClaims:
+          type: integer
+        denialRate:
+          type: number
+        collectionRate:
+          type: number
+        arDays:
+          type: number
+        pendingClaims:
+          type: integer
+        openDenials:
+          type: integer
+        paymentsThisMonth:
+          type: number
+
+    RevenueTrendItem:
+      type: object
+      required: [month, revenue, collections, charges]
+      properties:
+        month:
+          type: string
+        revenue:
+          type: number
+        collections:
+          type: number
+        charges:
+          type: number
+
+    ActivityItem:
+      type: object
+      required: [id, type, description, timestamp, user]
+      properties:
+        id:
+          type: integer
+        type:
+          type: string
+        description:
+          type: string
+        timestamp:
+          type: string
+        user:
+          type: string
+        meta:
+          type: ["string", "null"]
+
+    PayerMixItem:
+      type: object
+      required: [payer, percentage, amount]
+      properties:
+        payer:
+          type: string
+        percentage:
+          type: number
+        amount:
+          type: number
+
+    # Patients
+    Patient:
+      type: object
+      required: [id, firstName, lastName, dob, mrn, status, primaryInsurance, phone, email, address, createdAt]
+      properties:
+        id:
+          type: integer
+        firstName:
+          type: string
+        lastName:
+          type: string
+        dob:
+          type: string
+        mrn:
+          type: string
+        status:
+          type: string
+        primaryInsurance:
+          type: string
+        secondaryInsurance:
+          type: ["string", "null"]
+        phone:
+          type: string
+        email:
+          type: string
+        address:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        zip:
+          type: string
+        provider:
+          type: string
+        createdAt:
+          type: string
+        balance:
+          type: number
+
+    PatientList:
+      type: object
+      required: [data, total, page, limit]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Patient"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+
+    PatientInput:
+      type: object
+      required: [firstName, lastName, dob, primaryInsurance, phone, email]
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        dob:
+          type: string
+        primaryInsurance:
+          type: string
+        secondaryInsurance:
+          type: ["string", "null"]
+        phone:
+          type: string
+        email:
+          type: string
+        address:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        zip:
+          type: string
+        provider:
+          type: string
+
+    PatientUpdate:
+      type: object
+      properties:
+        firstName:
+          type: string
+        lastName:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        status:
+          type: string
+        primaryInsurance:
+          type: string
+        address:
+          type: string
+
+    EligibilityResult:
+      type: object
+      required: [patientId, eligible, payer, planName, memberId, groupId, copay, deductible, deductibleMet, outOfPocketMax, outOfPocketMet, checkedAt]
+      properties:
+        patientId:
+          type: integer
+        eligible:
+          type: boolean
+        payer:
+          type: string
+        planName:
+          type: string
+        memberId:
+          type: string
+        groupId:
+          type: string
+        copay:
+          type: number
+        deductible:
+          type: number
+        deductibleMet:
+          type: number
+        outOfPocketMax:
+          type: number
+        outOfPocketMet:
+          type: number
+        checkedAt:
+          type: string
+
+    # Insurance
+    Payer:
+      type: object
+      required: [id, name, type, npi, status, claimsAddress, phone, electronicPayerId]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        type:
+          type: string
+        npi:
+          type: string
+        status:
+          type: string
+        claimsAddress:
+          type: string
+        phone:
+          type: string
+        electronicPayerId:
+          type: string
+        avgReimbursementDays:
+          type: number
+        denialRate:
+          type: number
+        contractedRate:
+          type: number
+
+    PayerInput:
+      type: object
+      required: [name, type, npi, claimsAddress, phone, electronicPayerId]
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+        npi:
+          type: string
+        claimsAddress:
+          type: string
+        phone:
+          type: string
+        electronicPayerId:
+          type: string
+
+    PayerUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        status:
+          type: string
+        phone:
+          type: string
+        contractedRate:
+          type: number
+
+    # Charges
+    Charge:
+      type: object
+      required: [id, patientId, patientName, serviceDate, cptCode, icdCode, description, amount, status, providerId, providerName]
+      properties:
+        id:
+          type: integer
+        patientId:
+          type: integer
+        patientName:
+          type: string
+        serviceDate:
+          type: string
+        cptCode:
+          type: string
+        icdCode:
+          type: string
+        description:
+          type: string
+        amount:
+          type: number
+        status:
+          type: string
+        providerId:
+          type: integer
+        providerName:
+          type: string
+        modifier:
+          type: ["string", "null"]
+        units:
+          type: integer
+        notes:
+          type: ["string", "null"]
+
+    ChargeInput:
+      type: object
+      required: [patientId, serviceDate, cptCode, icdCode, amount, providerId]
+      properties:
+        patientId:
+          type: integer
+        serviceDate:
+          type: string
+        cptCode:
+          type: string
+        icdCode:
+          type: string
+        description:
+          type: string
+        amount:
+          type: number
+        providerId:
+          type: integer
+        modifier:
+          type: ["string", "null"]
+        units:
+          type: integer
+        notes:
+          type: ["string", "null"]
+
+    ChargeUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+        amount:
+          type: number
+        notes:
+          type: ["string", "null"]
+
+    # Claims
+    Claim:
+      type: object
+      required: [id, claimNumber, patientId, patientName, payerId, payerName, serviceDate, submittedDate, totalCharge, allowedAmount, status, claimType]
+      properties:
+        id:
+          type: integer
+        claimNumber:
+          type: string
+        patientId:
+          type: integer
+        patientName:
+          type: string
+        payerId:
+          type: integer
+        payerName:
+          type: string
+        serviceDate:
+          type: string
+        submittedDate:
+          type: string
+        totalCharge:
+          type: number
+        allowedAmount:
+          type: number
+        paidAmount:
+          type: number
+        adjustmentAmount:
+          type: number
+        patientBalance:
+          type: number
+        status:
+          type: string
+        claimType:
+          type: string
+        providerId:
+          type: integer
+        providerName:
+          type: string
+        diagnosisCodes:
+          type: array
+          items:
+            type: string
+        procedureCodes:
+          type: array
+          items:
+            type: string
+
+    ClaimList:
+      type: object
+      required: [data, total, page, limit]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Claim"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+
+    ClaimInput:
+      type: object
+      required: [patientId, payerId, serviceDate, totalCharge, claimType, diagnosisCodes, procedureCodes]
+      properties:
+        patientId:
+          type: integer
+        payerId:
+          type: integer
+        serviceDate:
+          type: string
+        totalCharge:
+          type: number
+        claimType:
+          type: string
+        diagnosisCodes:
+          type: array
+          items:
+            type: string
+        procedureCodes:
+          type: array
+          items:
+            type: string
+        notes:
+          type: ["string", "null"]
+
+    ClaimUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+        allowedAmount:
+          type: number
+        paidAmount:
+          type: number
+        notes:
+          type: ["string", "null"]
+
+    ClaimStats:
+      type: object
+      required: [pending, submitted, paid, denied, appealed, total]
+      properties:
+        pending:
+          type: integer
+        submitted:
+          type: integer
+        paid:
+          type: integer
+        denied:
+          type: integer
+        appealed:
+          type: integer
+        total:
+          type: integer
+
+    # Denials
+    Denial:
+      type: object
+      required: [id, claimId, claimNumber, patientName, payerName, denialDate, denialReason, rootCause, amount, status, daysToAppeal]
+      properties:
+        id:
+          type: integer
+        claimId:
+          type: integer
+        claimNumber:
+          type: string
+        patientName:
+          type: string
+        payerName:
+          type: string
+        denialDate:
+          type: string
+        denialReason:
+          type: string
+        rootCause:
+          type: string
+        amount:
+          type: number
+        status:
+          type: string
+        daysToAppeal:
+          type: integer
+        appealDate:
+          type: ["string", "null"]
+        appealNotes:
+          type: ["string", "null"]
+        resolvedDate:
+          type: ["string", "null"]
+
+    DenialUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+        appealNotes:
+          type: string
+        appealDate:
+          type: string
+
+    DenialSummaryItem:
+      type: object
+      required: [rootCause, count, amount, percentage]
+      properties:
+        rootCause:
+          type: string
+        count:
+          type: integer
+        amount:
+          type: number
+        percentage:
+          type: number
+
+    # Payments
+    Payment:
+      type: object
+      required: [id, claimId, claimNumber, patientName, payerName, amount, paymentDate, type, method, status, postedBy]
+      properties:
+        id:
+          type: integer
+        claimId:
+          type: integer
+        claimNumber:
+          type: string
+        patientName:
+          type: string
+        payerName:
+          type: string
+        amount:
+          type: number
+        paymentDate:
+          type: string
+        type:
+          type: string
+        method:
+          type: string
+        status:
+          type: string
+        postedBy:
+          type: string
+        checkNumber:
+          type: ["string", "null"]
+        eraNumber:
+          type: ["string", "null"]
+        adjustments:
+          type: number
+
+    PaymentInput:
+      type: object
+      required: [claimId, amount, paymentDate, type, method]
+      properties:
+        claimId:
+          type: integer
+        amount:
+          type: number
+        paymentDate:
+          type: string
+        type:
+          type: string
+        method:
+          type: string
+        checkNumber:
+          type: ["string", "null"]
+        adjustments:
+          type: number
+        notes:
+          type: ["string", "null"]
+
+    PaymentSummary:
+      type: object
+      required: [totalCollected, insurancePayments, patientPayments, adjustments, pendingPosting, collectionRate]
+      properties:
+        totalCollected:
+          type: number
+        insurancePayments:
+          type: number
+        patientPayments:
+          type: number
+        adjustments:
+          type: number
+        pendingPosting:
+          type: number
+        collectionRate:
+          type: number
+
+    # Billing
+    Statement:
+      type: object
+      required: [id, patientId, patientName, statementDate, dueDate, totalAmount, paidAmount, balance, status]
+      properties:
+        id:
+          type: integer
+        patientId:
+          type: integer
+        patientName:
+          type: string
+        statementDate:
+          type: string
+        dueDate:
+          type: string
+        totalAmount:
+          type: number
+        paidAmount:
+          type: number
+        balance:
+          type: number
+        status:
+          type: string
+        email:
+          type: ["string", "null"]
+        lastReminderSent:
+          type: ["string", "null"]
+
+    PaymentPlan:
+      type: object
+      required: [id, patientId, patientName, totalAmount, monthlyAmount, remainingBalance, startDate, status, installmentsPaid, totalInstallments]
+      properties:
+        id:
+          type: integer
+        patientId:
+          type: integer
+        patientName:
+          type: string
+        totalAmount:
+          type: number
+        monthlyAmount:
+          type: number
+        remainingBalance:
+          type: number
+        startDate:
+          type: string
+        status:
+          type: string
+        installmentsPaid:
+          type: integer
+        totalInstallments:
+          type: integer
+
+    PaymentPlanInput:
+      type: object
+      required: [patientId, totalAmount, monthlyAmount, startDate]
+      properties:
+        patientId:
+          type: integer
+        totalAmount:
+          type: number
+        monthlyAmount:
+          type: number
+        startDate:
+          type: string
+        notes:
+          type: ["string", "null"]
+
+    # AR
+    ArAging:
+      type: object
+      required: [current, days30, days60, days90, days120plus, total, buckets]
+      properties:
+        current:
+          type: number
+        days30:
+          type: number
+        days60:
+          type: number
+        days90:
+          type: number
+        days120plus:
+          type: number
+        total:
+          type: number
+        buckets:
+          type: array
+          items:
+            $ref: "#/components/schemas/AgingBucket"
+
+    AgingBucket:
+      type: object
+      required: [label, amount, percentage, count]
+      properties:
+        label:
+          type: string
+        amount:
+          type: number
+        percentage:
+          type: number
+        count:
+          type: integer
+
+    ArWorklistItem:
+      type: object
+      required: [id, claimId, claimNumber, patientName, payerName, amount, ageDays, priority, assignee, lastAction, nextAction]
+      properties:
+        id:
+          type: integer
+        claimId:
+          type: integer
+        claimNumber:
+          type: string
+        patientName:
+          type: string
+        payerName:
+          type: string
+        amount:
+          type: number
+        ageDays:
+          type: integer
+        priority:
+          type: string
+        assignee:
+          type: string
+        lastAction:
+          type: string
+        nextAction:
+          type: string
+        dueDate:
+          type: string
+
+    # Reporting
+    KpiReport:
+      type: object
+      required: [period, totalCharges, totalCollections, totalAdjustments, netRevenue, collectionRate, denialRate, arDays, claimCount]
+      properties:
+        period:
+          type: string
+        totalCharges:
+          type: number
+        totalCollections:
+          type: number
+        totalAdjustments:
+          type: number
+        netRevenue:
+          type: number
+        collectionRate:
+          type: number
+        denialRate:
+          type: number
+        arDays:
+          type: number
+        claimCount:
+          type: integer
+
+    PayerPerformanceItem:
+      type: object
+      required: [payerName, claimsSubmitted, claimsPaid, denialRate, avgReimbursementDays, totalPaid, collectionRate]
+      properties:
+        payerName:
+          type: string
+        claimsSubmitted:
+          type: integer
+        claimsPaid:
+          type: integer
+        denialRate:
+          type: number
+        avgReimbursementDays:
+          type: number
+        totalPaid:
+          type: number
+        collectionRate:
+          type: number
+
+    ProviderProductivityItem:
+      type: object
+      required: [providerName, specialty, totalCharges, totalCollections, claimsCount, avgChargePerEncounter, rvu]
+      properties:
+        providerName:
+          type: string
+        specialty:
+          type: string
+        totalCharges:
+          type: number
+        totalCollections:
+          type: number
+        claimsCount:
+          type: integer
+        avgChargePerEncounter:
+          type: number
+        rvu:
+          type: number
+
+    # Coding
+    CodeSuggestion:
+      type: object
+      required: [code, type, description, confidence]
+      properties:
+        code:
+          type: string
+        type:
+          type: string
+        description:
+          type: string
+        confidence:
+          type: number
+        billable:
+          type: boolean
+
+    CodingAudit:
+      type: object
+      required: [id, claimId, claimNumber, patientName, flag, severity, description, status, createdAt]
+      properties:
+        id:
+          type: integer
+        claimId:
+          type: integer
+        claimNumber:
+          type: string
+        patientName:
+          type: string
+        flag:
+          type: string
+        severity:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+        createdAt:
+          type: string
+
+    # Users
+    User:
+      type: object
+      required: [id, name, email, role, department, status, lastLogin, createdAt]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+        department:
+          type: string
+        status:
+          type: string
+        lastLogin:
+          type: string
+        createdAt:
+          type: string
+        permissions:
+          type: array
+          items:
+            type: string
+
+    UserInput:
+      type: object
+      required: [name, email, role, department]
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+        department:
+          type: string
+        permissions:
+          type: array
+          items:
+            type: string
+
+    UserUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        role:
+          type: string
+        department:
+          type: string
+        status:
+          type: string
+        permissions:
+          type: array
+          items:
+            type: string
