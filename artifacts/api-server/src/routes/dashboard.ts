@@ -15,7 +15,7 @@ router.get("/dashboard/kpis", async (req, res) => {
 
     const [denialCount] = await db.select({ count: count() }).from(denialsTable).where(sql`${denialsTable.status} = 'open'`);
     const [pendingCount] = await db.select({ count: count() }).from(claimsTable).where(sql`${claimsTable.status} = 'pending'`);
-    const [paymentSum] = await db.select({ total: sum(paymentsTable.amount) }).from(paymentsTable).where(sql`${paymentsTable.paymentDate} >= to_char(date_trunc('month', now()), 'YYYY-MM-DD')`);
+    const [paymentSum] = await db.select({ total: sum(paymentsTable.amount) }).from(paymentsTable);
 
     const totalCharges = Number(claimStats.totalCharge ?? 0);
     const totalPaid = Number(claimStats.totalPaid ?? 0);

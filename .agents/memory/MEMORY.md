@@ -1,0 +1,3 @@
+- [RCM Claims Seeding](rcm-claims-seeding.md) — claims table seed fails silently; always verify with SELECT COUNT(*) FROM claims after seeding.
+- [RCM Generated Hook Signatures](rcm-hook-signatures.md) — generated hooks use different param names than you'd expect; check the generated file before calling mutate.
+- [RCM DB Numeric Types](rcm-db-numeric.md) — all monetary columns are Drizzle numeric (returned as strings); always wrap with Number() before arithmetic.
