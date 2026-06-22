@@ -46,13 +46,28 @@ router.get("/claims", async (req, res) => {
 router.post("/claims", async (req, res) => {
   const claimNumber = `CLM-${new Date().getFullYear()}-${String(Math.floor(Math.random() * 90000) + 10000)}`;
   try {
+    const { patientId, patientName = "", payerId, payerName = "", serviceDate, providerId = 1, providerName = "", claimType = "professional", diagnosisCodes, procedureCodes, allowedAmount, paidAmount, adjustmentAmount, patientBalance } = req.body;
+    // Accept either totalCharge or totalAmount for flexibility
+    const totalCharge = String(req.body.totalCharge ?? req.body.totalAmount ?? "0");
     const [claim] = await db.insert(claimsTable).values({
-      ...req.body,
       claimNumber,
+      patientId: Number(patientId),
+      patientName,
+      payerId: Number(payerId),
+      payerName,
+      serviceDate,
       submittedDate: new Date().toISOString().split("T")[0],
       status: "pending",
-      diagnosisCodes: JSON.stringify(req.body.diagnosisCodes ?? []),
-      procedureCodes: JSON.stringify(req.body.procedureCodes ?? []),
+      claimType,
+      providerId: Number(providerId),
+      providerName,
+      totalCharge,
+      allowedAmount: String(allowedAmount ?? "0"),
+      paidAmount: String(paidAmount ?? "0"),
+      adjustmentAmount: String(adjustmentAmount ?? "0"),
+      patientBalance: String(patientBalance ?? "0"),
+      diagnosisCodes: JSON.stringify(diagnosisCodes ?? []),
+      procedureCodes: JSON.stringify(procedureCodes ?? []),
     }).returning();
     res.status(201).json({ ...claim, diagnosisCodes: JSON.parse(claim.diagnosisCodes), procedureCodes: JSON.parse(claim.procedureCodes) });
   } catch (e) {

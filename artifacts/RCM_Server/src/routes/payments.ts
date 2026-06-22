@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { paymentsTable } from "@workspace/db";
-import { sql, sum } from "drizzle-orm";
+import { paymentsTable, claimsTable } from "@workspace/db";
+import { sql, sum, eq } from "drizzle-orm";
 
 const router = Router();
 
@@ -39,7 +39,26 @@ router.get("/payments", async (_req, res) => {
 
 router.post("/payments", async (req, res) => {
   try {
-    const [payment] = await db.insert(paymentsTable).values({ ...req.body, status: "posted", postedBy: "Current User" }).returning();
+    const { claimId, amount, paymentDate, type = "insurance", method = "eft", checkNumber, adjustments = 0 } = req.body;
+    // Look up claim details to populate denormalized fields
+    const [claim] = await db.select().from(claimsTable).where(eq(claimsTable.id, Number(claimId)));
+    const claimNumber = claim?.claimNumber ?? `CLM-${claimId}`;
+    const patientName = claim?.patientName ?? "";
+    const payerName = claim?.payerName ?? "";
+    const [payment] = await db.insert(paymentsTable).values({
+      claimId: Number(claimId),
+      claimNumber,
+      patientName,
+      payerName,
+      amount: String(amount),
+      paymentDate,
+      type,
+      method,
+      checkNumber: checkNumber || null,
+      adjustments: String(adjustments),
+      status: "posted",
+      postedBy: "Current User",
+    }).returning();
     res.status(201).json(payment);
   } catch (e) {
     req.log.error(e);

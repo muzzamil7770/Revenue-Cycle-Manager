@@ -43,6 +43,28 @@ router.get("/denials", async (_req, res) => {
   }
 });
 
+router.post("/denials", async (req, res) => {
+  try {
+    const { claimId, claimNumber, patientName = "", payerName = "", denialDate, denialReason, rootCause, amount, daysToAppeal = 30, status = "open" } = req.body;
+    const [denial] = await db.insert(denialsTable).values({
+      claimId: Number(claimId),
+      claimNumber,
+      patientName,
+      payerName,
+      denialDate,
+      denialReason,
+      rootCause,
+      amount: String(amount),
+      daysToAppeal: Number(daysToAppeal),
+      status,
+    }).returning();
+    res.status(201).json(denial);
+  } catch (e) {
+    req.log.error(e);
+    res.status(500).json({ error: "Failed to create denial" });
+  }
+});
+
 router.get("/denials/:id", async (req, res) => {
   const id = parseInt(req.params.id);
   try {

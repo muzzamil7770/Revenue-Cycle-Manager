@@ -55,15 +55,16 @@ const navSections: NavSection[] = [
 interface SidebarProps {
   collapsed: boolean;
   onToggle: () => void;
+  onNavClick?: () => void;
 }
 
-export function Sidebar({ collapsed, onToggle }: SidebarProps) {
+export function Sidebar({ collapsed, onToggle, onNavClick }: SidebarProps) {
   const [location] = useLocation();
 
   return (
     <aside
       className={cn(
-        "flex flex-col bg-sidebar border-r border-sidebar-border transition-all duration-200 ease-in-out flex-shrink-0",
+        "flex flex-col bg-sidebar border-r border-sidebar-border transition-all duration-200 ease-in-out flex-shrink-0 h-full",
         collapsed ? "w-16" : "w-60"
       )}
     >
@@ -116,6 +117,7 @@ export function Sidebar({ collapsed, onToggle }: SidebarProps) {
                   <Link
                     key={item.href}
                     href={item.href}
+                    onClick={onNavClick}
                     data-testid={`nav-${item.href.replace("/", "") || "dashboard"}`}
                     className={cn(
                       "flex items-center gap-3 px-2 py-2 rounded-md text-sm transition-colors",

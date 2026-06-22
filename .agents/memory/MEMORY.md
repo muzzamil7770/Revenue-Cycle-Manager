@@ -1,3 +1,5 @@
 - [RCM Claims Seeding](rcm-claims-seeding.md) — claims table seed fails silently; always verify with SELECT COUNT(*) FROM claims after seeding.
 - [RCM Generated Hook Signatures](rcm-hook-signatures.md) — generated hooks use different param names than you'd expect; check the generated file before calling mutate.
 - [RCM DB Numeric Types](rcm-db-numeric.md) — all monetary columns are Drizzle numeric (returned as strings); always wrap with Number() before arithmetic.
+- [RCM API route paths](rcm-api-routes.md) — reporting is /reports/* not /reporting/*; coding is /coding/suggestions not /coding/codes; payments POST must JOIN claims to populate claimNumber (NOT NULL).
+- [RCM Mobile layout](rcm-mobile-layout.md) — desktop sidebar hidden md:hidden, mobile uses Sheet drawer; Navbar has two separate hamburger buttons (md:hidden mobile, hidden md:block desktop).

@@ -33,19 +33,29 @@ function getBreadcrumbs(location: string) {
 interface NavbarProps {
   sidebarCollapsed: boolean;
   onToggleSidebar: () => void;
+  onOpenMobileMenu: () => void;
 }
 
-export function Navbar({ onToggleSidebar }: NavbarProps) {
+export function Navbar({ onToggleSidebar, onOpenMobileMenu }: NavbarProps) {
   const [location] = useLocation();
   const { theme, setTheme } = useTheme();
   const crumbs = getBreadcrumbs(location);
 
   return (
     <header className="h-14 border-b border-border bg-card flex items-center px-4 gap-3 flex-shrink-0">
+      {/* Mobile hamburger — visible only below md */}
+      <button
+        onClick={onOpenMobileMenu}
+        data-testid="button-mobile-menu"
+        className="md:hidden p-1.5 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+      >
+        <Menu className="w-4 h-4" />
+      </button>
+      {/* Desktop sidebar toggle — visible only md+ */}
       <button
         onClick={onToggleSidebar}
         data-testid="button-menu-toggle"
-        className="p-1.5 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+        className="hidden md:block p-1.5 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
       >
         <Menu className="w-4 h-4" />
       </button>

@@ -1,6 +1,6 @@
 kind = "web"
 previewPath = "/"
-title = "Healthcare RCM Platform"
+title = "RCM_Client"
 version = "1.0.0"
 id = "artifacts/rcm"
 router = "path"
@@ -15,11 +15,11 @@ paths = [ "/" ]
 localPort = 25666
 
 [services.development]
-run = "pnpm --filter @workspace/rcm run dev"
+run = "pnpm --filter @workspace/rcm-client run dev"
 
 [services.production]
-build = [ "pnpm", "--filter", "@workspace/rcm", "run", "build" ]
-publicDir = "artifacts/rcm/dist/public"
+build = [ "pnpm", "--filter", "@workspace/rcm-client", "run", "build" ]
+publicDir = "artifacts/RCM_Client/dist/public"
 serve = "static"
 
 [[services.production.rewrites]]

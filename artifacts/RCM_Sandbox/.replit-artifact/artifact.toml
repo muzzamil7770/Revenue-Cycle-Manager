@@ -1,6 +1,6 @@
 kind = "design"
 previewPath = "/__mockup"
-title = "Canvas"
+title = "RCM_Sandbox"
 version = "1.0.0"
 id = "XegfDyZt7HqfW2Bb8Ghoy"
 
@@ -14,4 +14,4 @@ PORT = "8081"
 BASE_PATH = "/__mockup"
 
 [services.development]
-run = "pnpm --filter @workspace/mockup-sandbox run dev"
+run = "pnpm --filter @workspace/rcm-sandbox run dev"

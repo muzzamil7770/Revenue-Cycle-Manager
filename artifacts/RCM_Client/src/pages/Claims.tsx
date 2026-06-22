@@ -44,7 +44,7 @@ export default function Claims() {
       </div>
 
       {/* Filters */}
-      <div className="flex gap-2 mb-4">
+      <div className="flex flex-wrap gap-2 mb-4">
         {STATUSES.map(s => (
           <Button
             key={s}
